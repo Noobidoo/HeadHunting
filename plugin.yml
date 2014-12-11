@@ -1,0 +1,8 @@
+name: HeadHunting
+version: 1.0
+author: [LordSpyder]
+main: me.lordspyder.HeadHunting.HeadHunting
+depend: [Vault]
+commands:
+   hunting:
+     description: Hunting !
