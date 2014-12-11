@@ -87,7 +87,7 @@ public class HeadHunting extends JavaPlugin implements Listener {
 				target.setPlayerListName(ChatColor.RED + target.getName());
 				return true;
 			} else {
-				p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NottHaveMoney")));
+				p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotHaveMoney")));
 				return true;
 			}
 		}
@@ -100,7 +100,7 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		if(player.getKiller() != null && hunting.containsKey(player.getName())){
 			Player killer = player.getKiller();
 			int taglia = hunting.get(player.getName());
-			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replace("%d", player.getName()).replaceAll("%k", killer.getName())));
+			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replaceAll("%d", player.getName()).replaceAll("%k", killer.getName())));
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
 			EconomyResponse r = econ.depositPlayer(killer, taglia);
 			if(!r.transactionSuccess()) {
