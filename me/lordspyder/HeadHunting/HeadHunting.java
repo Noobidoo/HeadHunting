@@ -1,7 +1,7 @@
-package me.lordspyder.HeadHunting;
+package net.pappapronta.headhunting;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -22,7 +22,7 @@ public class HeadHunting extends JavaPlugin implements Listener {
 
 
 	String prefix = ChatColor.GOLD + "[" + ChatColor.AQUA + "HeadHunting" + ChatColor.GOLD + "] "; 
-	ArrayList<String> hunting = new ArrayList<String>();
+	HashMap<String, Integer> hunting = new HashMap<String, Integer>();
 
 	public static Economy econ = null;
 
@@ -53,13 +53,12 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		econ = rsp.getProvider();
 		return econ != null;
 	}
-
-	@SuppressWarnings("deprecation")
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String Comandlabel, String[] args) {
 		Player p = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("hunting")) {
-			if (args.length == 0) {
-				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("SpecifyAPlayer")));
+			if (args.length != 2) {
+				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("CorrectUsage")));//Change in conf
 				return true;
 			}
 			if(args[0].equals(p.getName())) {
@@ -68,13 +67,23 @@ public class HeadHunting extends JavaPlugin implements Listener {
 			}
 			Player target = Bukkit.getServer().getPlayer(args[0]);
 			if (target == null) {
-				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotFindPlayer") + args[0] ));
+				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotFindPlayer")));
 				return true;
 			}
-			EconomyResponse r = econ.withdrawPlayer(p.getName(), 25);
+			
+			int taglia = 0;
+			try {
+				taglia = Integer.parseInt(args[1]);
+			} catch(NumberFormatException e) {
+				p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotANumber")));
+				return true;
+			}
+			
+			EconomyResponse r = econ.withdrawPlayer(p, taglia);
 			if (r.transactionSuccess()) {
-				hunting.add(target.getName());
-				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HeadHuntingOn") + target.getName()));
+				hunting.put(target.getName(), taglia);
+				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HeadHuntingOn").replaceAll("%p", target.getName())));
+				getServer().broadcastMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("BroadcastHeadHuntingOn").replaceAll("%s", p.getName()).replaceAll("%t", target.getName()).replaceAll("%b", Integer.toString(taglia))));
 				target.setPlayerListName(ChatColor.RED + target.getName());
 				return true;
 			} else {
@@ -84,17 +93,21 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		}
 		return true;
 	}
-	@SuppressWarnings({ "deprecation", "unused" })
+	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e){
 		Player player = e.getEntity();
-		if(player.getKiller() != null && hunting.contains(player.getName())){
-			String killer = player.getKiller().getName();
-			e.setDeathMessage(prefix + player.getName() + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy") + killer));
+		if(player.getKiller() != null && hunting.containsKey(player.getName())){
+			Player killer = player.getKiller();
+			int taglia = hunting.get(player.getName());
+			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replace("%d", player.getName()).replaceAll("%k", killer.getName())));
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
-			EconomyResponse r = econ.depositPlayer(killer, 25);
+			EconomyResponse r = econ.depositPlayer(killer, taglia);
+			if(!r.transactionSuccess()) {
+				killer.sendMessage(prefix + ChatColor.RED + "An error as occurred");
+				return;
+			}
 			hunting.remove(player);
-
 		}
 	}
 }
