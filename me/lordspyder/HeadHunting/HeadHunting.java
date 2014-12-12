@@ -44,10 +44,12 @@ public class HeadHunting extends JavaPlugin implements Listener {
 	}
 	private boolean setupEconomy() {
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
+			getLogger().info("Vault not found");
 			return false;
 		}
 		RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
 		if (rsp == null) {
+			getLogger().info("Vault Economy Service not found");
 			return false;
 		}
 		econ = rsp.getProvider();
@@ -56,13 +58,12 @@ public class HeadHunting extends JavaPlugin implements Listener {
 	public boolean onCommand(CommandSender sender, Command cmd, String Commandlabel, String[] args) {
 		Player p = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("hunting")) {
-			p.sendMessage("" + huntinglist.toString());
 			if(!p.hasPermission("hunting.user")) {
 				p.sendMessage(getConfig().getString("Permission"));
 				return true;
 			}
 			if (args.length != 2) {
-				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("CorrectUsage")));//Change in conf
+				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("CorrectUsage")));
 				return true;
 			}
 			if(args[0].equals(p.getName())) {
@@ -83,6 +84,14 @@ public class HeadHunting extends JavaPlugin implements Listener {
 			}
 			EconomyResponse r = econ.withdrawPlayer(p, taglia);
 			if (r.transactionSuccess()) {
+				if(huntinglist.containsKey(target.getName())) {
+					p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("AlreadyHunted")));
+					return true;
+				}
+				if(target.hasPermission("hunting.exempt")) {
+					p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HuntingExempt")));
+					return true;
+				}
 				huntinglist.put(target.getName(), taglia);
 				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HeadHuntingOn").replaceAll("%p", target.getName())));
 				getServer().broadcastMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("BroadcastHeadHuntingOn").replaceAll("%s", p.getName()).replaceAll("%t", target.getName()).replaceAll("%b", Integer.toString(taglia))));
@@ -96,10 +105,13 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		}
 		
 		if(cmd.getName().equalsIgnoreCase("huntinglist")) {
+			if(!p.hasPermission("hunting.user")) {
+				p.sendMessage(getConfig().getString("Permission"));
+				return true;
+			}
 			for(String i : huntinglist.keySet()) {
 				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HuntedList").replaceAll("%h", i).replaceAll("%b", Integer.toString(huntinglist.get(i)))));
 			}
-			
 			return true;
 		}
 		return true;
@@ -110,7 +122,7 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		if(player.getKiller() != null && huntinglist.containsKey(player.getName())){
 			Player killer = player.getKiller();
 			int taglia = huntinglist.get(player.getName());
-			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replaceAll("%d", player.getName()).replaceAll("%k", killer.getName())));
+			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replaceAll("%d", player.getName()).replaceAll("%b", Integer.toString(taglia))).replaceAll("%k", killer.getName()));
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
 			player.setDisplayName(ChatColor.WHITE + player.getName());
 			EconomyResponse r = econ.depositPlayer(killer, taglia);
