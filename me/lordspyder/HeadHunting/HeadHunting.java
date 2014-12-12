@@ -2,19 +2,24 @@ package net.pappapronta.headhunting;
 
 import java.io.File;
 import java.util.HashMap;
-
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -117,9 +122,16 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		return true;
 	}
 	@EventHandler
-	public void onDeath(PlayerDeathEvent e){
+	public void onDeath(PlayerDeathEvent e) {
 		Player player = e.getEntity();
 		if(player.getKiller() != null && huntinglist.containsKey(player.getName())){
+			Firework fw = (Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK);
+            FireworkMeta fwm = fw.getFireworkMeta();
+            FireworkEffect effect = FireworkEffect.builder().flicker(true).withColor(Color.RED).withFade(Color.ORANGE).with(Type.STAR).trail(true).build();
+            fwm.addEffect(effect);
+            fwm.setPower(1);
+            fw.setFireworkMeta(fwm);       
+            
 			Player killer = player.getKiller();
 			int taglia = huntinglist.get(player.getName());
 			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replaceAll("%d", player.getName()).replaceAll("%b", Integer.toString(taglia))).replaceAll("%k", killer.getName()));
