@@ -97,8 +97,7 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		
 		if(cmd.getName().equalsIgnoreCase("huntinglist")) {
 			for(String i : huntinglist.keySet()) {
-				
-				sender.sendMessage(prefix + "-" + " " + i);
+				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HuntedList").replaceAll("%h", i).replaceAll("%b", Integer.toString(huntinglist.get(i)))));
 			}
 			
 			return true;
