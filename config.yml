@@ -1,10 +1,35 @@
-Prefix: '[HeadHunting] '
+################################################################
+#  /\  /\___  __ _  __| | /\  /\_   _ _ __ | |_(_)_ __   __ _  #
+# / /_/ / _ \/ _` |/ _` |/ /_/ / | | | '_ \| __| | '_ \ / _` | #
+#/ __  /  __/ (_| | (_| / __  /| |_| | | | | |_| | | | | (_| | #
+#\/ /_/ \___|\__,_|\__,_\/ /_/  \__,_|_| |_|\__|_|_| |_|\__, | #
+#                                                       |___/  #
+################################################################
+
+#Created by: PappaPronta™
+
+#Spigot profile: http://goo.gl/S4HyMq
+
+#If you like our plugin please leave 5 stars :3
+
+# You can use all bukkit formatting codes !
+
 HeadHuntingYourSelf: 'You can''t put an HeadHunting on yourself'
+
 CorrectUsage: 'Use /hunting  <player> <bounty>'
+
 NotFindPlayer: 'Could not find the player'
+
 HeadHuntingOn: 'You put an HeadHunting on %p'
+
 BroadcastHeadHuntingOn: '%s put an HeadHunting on %t with a bounty of %b'
+
 NotHaveMoney: 'You don''t have enough money'
+
 WasSlainBy: '%d was slain by %k! HeadHunting is finished'
+
 NotANumber: 'Please specify a valid bounty'
+
+Prefix: '&6[&2HeadHunting&6]&r '
+
 HuntedList: '- %d : %b'
