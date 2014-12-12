@@ -14,11 +14,17 @@
 
 # You can use all bukkit formatting codes !
 
+Prefix: '[HeadHunting] '
+
 HeadHuntingYourSelf: 'You can''t put an HeadHunting on yourself'
 
 CorrectUsage: 'Use /hunting  <player> <bounty>'
 
 NotFindPlayer: 'Could not find the player'
+
+AlreadyHunted: 'This player has already an HeadHunting on himself'
+
+HuntingExempt: 'This player is exempt from HeadHunting'
 
 HeadHuntingOn: 'You put an HeadHunting on %p'
 
@@ -26,10 +32,8 @@ BroadcastHeadHuntingOn: '%s put an HeadHunting on %t with a bounty of %b'
 
 NotHaveMoney: 'You don''t have enough money'
 
-WasSlainBy: '%d was slain by %k! HeadHunting is finished'
+WasSlainBy: '%d was slain by %k for a bounty of %b! HeadHunting is finished'
 
 NotANumber: 'Please specify a valid bounty'
 
-Prefix: '&6[&2HeadHunting&6]&r '
-
-HuntedList: '- %d : %b'
+HuntedList: '- %h : %b'
