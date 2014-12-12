@@ -21,8 +21,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class HeadHunting extends JavaPlugin implements Listener {
 
 
-	String prefix = ChatColor.GOLD + "[" + ChatColor.AQUA + "HeadHunting" + ChatColor.GOLD + "] "; 
-	HashMap<String, Integer> hunting = new HashMap<String, Integer>();
+	String prefix = ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("Prefix"));
+
+	HashMap<String, Integer> huntinglist = new HashMap<String, Integer>();
 
 	public static Economy econ = null;
 
@@ -41,7 +42,6 @@ public class HeadHunting extends JavaPlugin implements Listener {
 			return;
 		}
 	}
-
 	private boolean setupEconomy() {
 		if (getServer().getPluginManager().getPlugin("Vault") == null) {
 			return false;
@@ -53,10 +53,14 @@ public class HeadHunting extends JavaPlugin implements Listener {
 		econ = rsp.getProvider();
 		return econ != null;
 	}
-	
-	public boolean onCommand(CommandSender sender, Command cmd, String Comandlabel, String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String Commandlabel, String[] args) {
 		Player p = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("hunting")) {
+			p.sendMessage("" + huntinglist.toString());
+			if(!p.hasPermission("hunting.user")) {
+				p.sendMessage(getConfig().getString("Permission"));
+				return true;
+			}
 			if (args.length != 2) {
 				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("CorrectUsage")));//Change in conf
 				return true;
@@ -70,7 +74,6 @@ public class HeadHunting extends JavaPlugin implements Listener {
 				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotFindPlayer")));
 				return true;
 			}
-			
 			int taglia = 0;
 			try {
 				taglia = Integer.parseInt(args[1]);
@@ -78,36 +81,45 @@ public class HeadHunting extends JavaPlugin implements Listener {
 				p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotANumber")));
 				return true;
 			}
-			
 			EconomyResponse r = econ.withdrawPlayer(p, taglia);
 			if (r.transactionSuccess()) {
-				hunting.put(target.getName(), taglia);
+				huntinglist.put(target.getName(), taglia);
 				sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("HeadHuntingOn").replaceAll("%p", target.getName())));
 				getServer().broadcastMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("BroadcastHeadHuntingOn").replaceAll("%s", p.getName()).replaceAll("%t", target.getName()).replaceAll("%b", Integer.toString(taglia))));
 				target.setPlayerListName(ChatColor.RED + target.getName());
+				target.setDisplayName(ChatColor.BOLD + "" + ChatColor.RED + target.getName());
 				return true;
 			} else {
 				p.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("NotHaveMoney")));
 				return true;
 			}
 		}
+		
+		if(cmd.getName().equalsIgnoreCase("huntinglist")) {
+			for(String i : huntinglist.keySet()) {
+				
+				sender.sendMessage(prefix + "-" + " " + i);
+			}
+			
+			return true;
+		}
 		return true;
 	}
-	
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e){
 		Player player = e.getEntity();
-		if(player.getKiller() != null && hunting.containsKey(player.getName())){
+		if(player.getKiller() != null && huntinglist.containsKey(player.getName())){
 			Player killer = player.getKiller();
-			int taglia = hunting.get(player.getName());
+			int taglia = huntinglist.get(player.getName());
 			e.setDeathMessage(prefix + ChatColor.translateAlternateColorCodes('&', this.getConfig().getString("WasSlainBy").replaceAll("%d", player.getName()).replaceAll("%k", killer.getName())));
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
+			player.setDisplayName(ChatColor.WHITE + player.getName());
 			EconomyResponse r = econ.depositPlayer(killer, taglia);
 			if(!r.transactionSuccess()) {
 				killer.sendMessage(prefix + ChatColor.RED + "An error as occurred");
 				return;
 			}
-			hunting.remove(player);
+			huntinglist.remove(player);
 		}
 	}
 }
